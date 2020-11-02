@@ -21,9 +21,57 @@
 
 
 
+class SystemException;
+
 class RFileMetadata;
 
 class RFile;
+
+typedef struct _SystemException__isset {
+  _SystemException__isset() : message(false) {}
+  bool message :1;
+} _SystemException__isset;
+
+class SystemException : public ::apache::thrift::TException {
+ public:
+
+  SystemException(const SystemException&);
+  SystemException& operator=(const SystemException&);
+  SystemException() : message() {
+  }
+
+  virtual ~SystemException() noexcept;
+  std::string message;
+
+  _SystemException__isset __isset;
+
+  void __set_message(const std::string& val);
+
+  bool operator == (const SystemException & rhs) const
+  {
+    if (__isset.message != rhs.__isset.message)
+      return false;
+    else if (__isset.message && !(message == rhs.message))
+      return false;
+    return true;
+  }
+  bool operator != (const SystemException &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const SystemException & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+  mutable std::string thriftTExceptionMessageHolder_;
+  const char* what() const noexcept;
+};
+
+void swap(SystemException &a, SystemException &b);
+
+std::ostream& operator<<(std::ostream& out, const SystemException& obj);
 
 typedef struct _RFileMetadata__isset {
   _RFileMetadata__isset() : filename(false), version(false) {}

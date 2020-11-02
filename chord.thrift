@@ -1,6 +1,6 @@
-//exception SystemException {
-//  1: optional string message
-//}
+exception SystemException {
+  1: optional string message
+}
 
 struct RFileMetadata {
   1: optional string filename;
@@ -20,10 +20,10 @@ struct RFile {
 
 service FileStore {
   void writeFile(1: RFile rFile)
-//    throws (1: SystemException systemException),
-//
-//  RFile readFile(1: string filename)
-//    throws (1: SystemException systemException),
+    throws (1: SystemException systemException),
+
+  RFile readFile(1: string filename)
+    throws (1: SystemException systemException)
 //
 //  void setFingertable(1: list<NodeID> node_list),
 //

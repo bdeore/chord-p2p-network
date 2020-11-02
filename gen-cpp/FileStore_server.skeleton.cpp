@@ -23,6 +23,11 @@ class FileStoreHandler : virtual public FileStoreIf {
     printf("writeFile\n");
   }
 
+  void readFile(RFile& _return, const std::string& filename) {
+    // Your implementation goes here
+    printf("readFile\n");
+  }
+
 };
 
 int main(int argc, char **argv) {

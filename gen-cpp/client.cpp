@@ -41,6 +41,14 @@ int main() {
 
   client.writeFile(file);
 
+  RFile newFile;
+  RFileMetadata newMetadata;
+  newFile.__set_meta(newMetadata);
+
+  client.readFile(newFile, "sample.txt");
+
+  std::cout << newFile.content << " " << newFile.meta.filename << " " << newFile.meta.version << " " << std::endl;
+
   trans_ep->close();
 }
 
