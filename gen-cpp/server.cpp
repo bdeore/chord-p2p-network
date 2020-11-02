@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <string>
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -17,13 +18,20 @@ using namespace ::apache::thrift::server;
 
 class FileStoreHandler : virtual public FileStoreIf {
  public:
-
-  FileStoreHandler() = default;
-
   RFile file;
   RFileMetadata metadata;
   std::vector<NodeID> finger_table;
   NodeID node_id;
+  int port;
+
+  FileStoreHandler() {
+    std::string ip = "128.226.114.201";
+
+    std::string key = ip + ":" + std::to_string(port);
+    this->node_id.__set_id(calculateSHA(key));
+    this->node_id.__set_ip(ip);
+    this->node_id.__set_port(port);
+  }
 
   void writeFile(const RFile &rFile) override {
     std::ifstream exists(rFile.meta.filename.c_str());
@@ -64,19 +72,16 @@ class FileStoreHandler : virtual public FileStoreIf {
       throw exception;
     }
 
-    std::cout << calculateSHA("128.226.117.49:9090") << std::endl;
-    std::cout << calculateSHA("128.226.127.49:9095") << std::endl;
-
     printf("readFile succeeded\n");
   }
 
   void setFingertable(const std::vector<NodeID> &node_list) override {
     this->finger_table = node_list;
-
-    for (const auto &node: finger_table) {
-      std::cout << node << std::endl;
-    }
+    std::cout << this->finger_table.size() << std::endl;
     printf("setFingertable succeeded\n");
+//    for (const auto &node: finger_table) {
+//      std::cout << node << std::endl;
+//    }
   }
 
 //  void findSucc(NodeID &_return, const std::string &key) {
@@ -88,11 +93,20 @@ class FileStoreHandler : virtual public FileStoreIf {
 //    // Your implementation goes here
 //    printf("findPred\n");
 //  }
-//
-//  void getNodeSucc(NodeID &_return) {
-//    // Your implementation goes here
-//    printf("getNodeSucc\n");
-//  }
+
+  void getNodeSucc(NodeID &_return) override {
+
+    if (finger_table.size() != 0) {
+      _return = this->finger_table.at(0);
+
+    } else {
+      SystemException exception;
+      exception.__set_message("Exception: Finger Table for the node is empty");
+      throw exception;
+    }
+
+    printf("getNodeSucc succeeded\n");
+  }
 
   std::string calculateSHA(std::string key) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -106,22 +120,22 @@ class FileStoreHandler : virtual public FileStoreIf {
     for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
       sha_str << std::hex << std::setw(2) << std::setfill('0') << (int) hash[i];
     }
-
     return sha_str.str();
   }
 
 };
 
-int main(int argc, char **argv) {
-  int port = 9090;
+int main(int argc, char *argv[]) {
+  int port = std::stoi(argv[1]);
   ::std::shared_ptr<FileStoreHandler> handler(new FileStoreHandler());
   ::std::shared_ptr<TProcessor> processor(new FileStoreProcessor(handler));
   ::std::shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
   ::std::shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
   ::std::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
+  handler->port = port;
 
   TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
-  std::cout << "server is rolling on port 9090" << std::endl;
+  std::cout << "server is running on port: [ " << handler->port << " ]" << std::endl;
   server.serve();
   return 0;
 }

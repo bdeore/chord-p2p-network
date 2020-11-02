@@ -22,7 +22,7 @@ client:
 	g++	client.o	FileStore.o	chord_types.o	chord_constants.o	-o	client	-std=c++17	-lstdc++	-L/home/cs557-inst/local/lib/	-lthrift	 -lssl	-lcrypto
 
 run:
-	source	~/.bashrc && ./server
+	source	~/.bashrc && ./server 9090
 
 re:clean all run
 

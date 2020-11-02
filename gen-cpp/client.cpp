@@ -13,8 +13,8 @@ using namespace apache::thrift::protocol;
 
 using std::make_shared;
 
-int main() {
-  auto trans_ep = make_shared<TSocket>("localhost", 9090);
+int main(int argc, char *argv[]) {
+  auto trans_ep = make_shared<TSocket>(argv[1], std::stoi(argv[2]));
   auto trans_buf = make_shared<TBufferedTransport>(trans_ep);
   auto proto = make_shared<TBinaryProtocol>(trans_buf);
   FileStoreClient client(proto);
