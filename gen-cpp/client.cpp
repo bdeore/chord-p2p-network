@@ -13,16 +13,6 @@ using namespace apache::thrift::protocol;
 
 using std::make_shared;
 
-//struct RFileMetadata {
-//  std::string filename;
-//  int version;
-//} metadata;
-//
-//struct RFile {
-//  RFileMetadata meta;
-//  std::string content;
-//} file;
-
 int main() {
   auto trans_ep = make_shared<TSocket>("localhost", 9090);
   auto trans_buf = make_shared<TBufferedTransport>(trans_ep);

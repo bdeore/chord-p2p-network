@@ -27,6 +27,8 @@ class RFileMetadata;
 
 class RFile;
 
+class NodeID;
+
 typedef struct _SystemException__isset {
   _SystemException__isset() : message(false) {}
   bool message :1;
@@ -176,6 +178,60 @@ class RFile : public virtual ::apache::thrift::TBase {
 void swap(RFile &a, RFile &b);
 
 std::ostream& operator<<(std::ostream& out, const RFile& obj);
+
+typedef struct _NodeID__isset {
+  _NodeID__isset() : id(false), ip(false), port(false) {}
+  bool id :1;
+  bool ip :1;
+  bool port :1;
+} _NodeID__isset;
+
+class NodeID : public virtual ::apache::thrift::TBase {
+ public:
+
+  NodeID(const NodeID&);
+  NodeID& operator=(const NodeID&);
+  NodeID() : id(), ip(), port(0) {
+  }
+
+  virtual ~NodeID() noexcept;
+  std::string id;
+  std::string ip;
+  int32_t port;
+
+  _NodeID__isset __isset;
+
+  void __set_id(const std::string& val);
+
+  void __set_ip(const std::string& val);
+
+  void __set_port(const int32_t val);
+
+  bool operator == (const NodeID & rhs) const
+  {
+    if (!(id == rhs.id))
+      return false;
+    if (!(ip == rhs.ip))
+      return false;
+    if (!(port == rhs.port))
+      return false;
+    return true;
+  }
+  bool operator != (const NodeID &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const NodeID & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(NodeID &a, NodeID &b);
+
+std::ostream& operator<<(std::ostream& out, const NodeID& obj);
 
 
 
