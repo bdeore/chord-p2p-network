@@ -23,11 +23,6 @@ class FileStoreIf {
  public:
   virtual ~FileStoreIf() {}
   virtual void writeFile(const RFile& rFile) = 0;
-  virtual void readFile(RFile& _return, const std::string& filename) = 0;
-  virtual void setFingertable(const std::vector<NodeID> & node_list) = 0;
-  virtual void findSucc(NodeID& _return, const std::string& key) = 0;
-  virtual void findPred(NodeID& _return, const std::string& key) = 0;
-  virtual void getNodeSucc(NodeID& _return) = 0;
 };
 
 class FileStoreIfFactory {
@@ -58,21 +53,6 @@ class FileStoreNull : virtual public FileStoreIf {
  public:
   virtual ~FileStoreNull() {}
   void writeFile(const RFile& /* rFile */) {
-    return;
-  }
-  void readFile(RFile& /* _return */, const std::string& /* filename */) {
-    return;
-  }
-  void setFingertable(const std::vector<NodeID> & /* node_list */) {
-    return;
-  }
-  void findSucc(NodeID& /* _return */, const std::string& /* key */) {
-    return;
-  }
-  void findPred(NodeID& /* _return */, const std::string& /* key */) {
-    return;
-  }
-  void getNodeSucc(NodeID& /* _return */) {
     return;
   }
 };
@@ -126,10 +106,6 @@ class FileStore_writeFile_pargs {
 
 };
 
-typedef struct _FileStore_writeFile_result__isset {
-  _FileStore_writeFile_result__isset() : systemException(false) {}
-  bool systemException :1;
-} _FileStore_writeFile_result__isset;
 
 class FileStore_writeFile_result {
  public:
@@ -140,16 +116,9 @@ class FileStore_writeFile_result {
   }
 
   virtual ~FileStore_writeFile_result() noexcept;
-  SystemException systemException;
 
-  _FileStore_writeFile_result__isset __isset;
-
-  void __set_systemException(const SystemException& val);
-
-  bool operator == (const FileStore_writeFile_result & rhs) const
+  bool operator == (const FileStore_writeFile_result & /* rhs */) const
   {
-    if (!(systemException == rhs.systemException))
-      return false;
     return true;
   }
   bool operator != (const FileStore_writeFile_result &rhs) const {
@@ -163,541 +132,12 @@ class FileStore_writeFile_result {
 
 };
 
-typedef struct _FileStore_writeFile_presult__isset {
-  _FileStore_writeFile_presult__isset() : systemException(false) {}
-  bool systemException :1;
-} _FileStore_writeFile_presult__isset;
 
 class FileStore_writeFile_presult {
  public:
 
 
   virtual ~FileStore_writeFile_presult() noexcept;
-  SystemException systemException;
-
-  _FileStore_writeFile_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _FileStore_readFile_args__isset {
-  _FileStore_readFile_args__isset() : filename(false) {}
-  bool filename :1;
-} _FileStore_readFile_args__isset;
-
-class FileStore_readFile_args {
- public:
-
-  FileStore_readFile_args(const FileStore_readFile_args&);
-  FileStore_readFile_args& operator=(const FileStore_readFile_args&);
-  FileStore_readFile_args() : filename() {
-  }
-
-  virtual ~FileStore_readFile_args() noexcept;
-  std::string filename;
-
-  _FileStore_readFile_args__isset __isset;
-
-  void __set_filename(const std::string& val);
-
-  bool operator == (const FileStore_readFile_args & rhs) const
-  {
-    if (!(filename == rhs.filename))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_readFile_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_readFile_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class FileStore_readFile_pargs {
- public:
-
-
-  virtual ~FileStore_readFile_pargs() noexcept;
-  const std::string* filename;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_readFile_result__isset {
-  _FileStore_readFile_result__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_readFile_result__isset;
-
-class FileStore_readFile_result {
- public:
-
-  FileStore_readFile_result(const FileStore_readFile_result&);
-  FileStore_readFile_result& operator=(const FileStore_readFile_result&);
-  FileStore_readFile_result() {
-  }
-
-  virtual ~FileStore_readFile_result() noexcept;
-  RFile success;
-  SystemException systemException;
-
-  _FileStore_readFile_result__isset __isset;
-
-  void __set_success(const RFile& val);
-
-  void __set_systemException(const SystemException& val);
-
-  bool operator == (const FileStore_readFile_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    if (!(systemException == rhs.systemException))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_readFile_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_readFile_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_readFile_presult__isset {
-  _FileStore_readFile_presult__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_readFile_presult__isset;
-
-class FileStore_readFile_presult {
- public:
-
-
-  virtual ~FileStore_readFile_presult() noexcept;
-  RFile* success;
-  SystemException systemException;
-
-  _FileStore_readFile_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _FileStore_setFingertable_args__isset {
-  _FileStore_setFingertable_args__isset() : node_list(false) {}
-  bool node_list :1;
-} _FileStore_setFingertable_args__isset;
-
-class FileStore_setFingertable_args {
- public:
-
-  FileStore_setFingertable_args(const FileStore_setFingertable_args&);
-  FileStore_setFingertable_args& operator=(const FileStore_setFingertable_args&);
-  FileStore_setFingertable_args() {
-  }
-
-  virtual ~FileStore_setFingertable_args() noexcept;
-  std::vector<NodeID>  node_list;
-
-  _FileStore_setFingertable_args__isset __isset;
-
-  void __set_node_list(const std::vector<NodeID> & val);
-
-  bool operator == (const FileStore_setFingertable_args & rhs) const
-  {
-    if (!(node_list == rhs.node_list))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_setFingertable_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_setFingertable_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class FileStore_setFingertable_pargs {
- public:
-
-
-  virtual ~FileStore_setFingertable_pargs() noexcept;
-  const std::vector<NodeID> * node_list;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class FileStore_setFingertable_result {
- public:
-
-  FileStore_setFingertable_result(const FileStore_setFingertable_result&);
-  FileStore_setFingertable_result& operator=(const FileStore_setFingertable_result&);
-  FileStore_setFingertable_result() {
-  }
-
-  virtual ~FileStore_setFingertable_result() noexcept;
-
-  bool operator == (const FileStore_setFingertable_result & /* rhs */) const
-  {
-    return true;
-  }
-  bool operator != (const FileStore_setFingertable_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_setFingertable_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class FileStore_setFingertable_presult {
- public:
-
-
-  virtual ~FileStore_setFingertable_presult() noexcept;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _FileStore_findSucc_args__isset {
-  _FileStore_findSucc_args__isset() : key(false) {}
-  bool key :1;
-} _FileStore_findSucc_args__isset;
-
-class FileStore_findSucc_args {
- public:
-
-  FileStore_findSucc_args(const FileStore_findSucc_args&);
-  FileStore_findSucc_args& operator=(const FileStore_findSucc_args&);
-  FileStore_findSucc_args() : key() {
-  }
-
-  virtual ~FileStore_findSucc_args() noexcept;
-  std::string key;
-
-  _FileStore_findSucc_args__isset __isset;
-
-  void __set_key(const std::string& val);
-
-  bool operator == (const FileStore_findSucc_args & rhs) const
-  {
-    if (!(key == rhs.key))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_findSucc_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_findSucc_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class FileStore_findSucc_pargs {
- public:
-
-
-  virtual ~FileStore_findSucc_pargs() noexcept;
-  const std::string* key;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_findSucc_result__isset {
-  _FileStore_findSucc_result__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_findSucc_result__isset;
-
-class FileStore_findSucc_result {
- public:
-
-  FileStore_findSucc_result(const FileStore_findSucc_result&);
-  FileStore_findSucc_result& operator=(const FileStore_findSucc_result&);
-  FileStore_findSucc_result() {
-  }
-
-  virtual ~FileStore_findSucc_result() noexcept;
-  NodeID success;
-  SystemException systemException;
-
-  _FileStore_findSucc_result__isset __isset;
-
-  void __set_success(const NodeID& val);
-
-  void __set_systemException(const SystemException& val);
-
-  bool operator == (const FileStore_findSucc_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    if (!(systemException == rhs.systemException))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_findSucc_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_findSucc_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_findSucc_presult__isset {
-  _FileStore_findSucc_presult__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_findSucc_presult__isset;
-
-class FileStore_findSucc_presult {
- public:
-
-
-  virtual ~FileStore_findSucc_presult() noexcept;
-  NodeID* success;
-  SystemException systemException;
-
-  _FileStore_findSucc_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _FileStore_findPred_args__isset {
-  _FileStore_findPred_args__isset() : key(false) {}
-  bool key :1;
-} _FileStore_findPred_args__isset;
-
-class FileStore_findPred_args {
- public:
-
-  FileStore_findPred_args(const FileStore_findPred_args&);
-  FileStore_findPred_args& operator=(const FileStore_findPred_args&);
-  FileStore_findPred_args() : key() {
-  }
-
-  virtual ~FileStore_findPred_args() noexcept;
-  std::string key;
-
-  _FileStore_findPred_args__isset __isset;
-
-  void __set_key(const std::string& val);
-
-  bool operator == (const FileStore_findPred_args & rhs) const
-  {
-    if (!(key == rhs.key))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_findPred_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_findPred_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class FileStore_findPred_pargs {
- public:
-
-
-  virtual ~FileStore_findPred_pargs() noexcept;
-  const std::string* key;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_findPred_result__isset {
-  _FileStore_findPred_result__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_findPred_result__isset;
-
-class FileStore_findPred_result {
- public:
-
-  FileStore_findPred_result(const FileStore_findPred_result&);
-  FileStore_findPred_result& operator=(const FileStore_findPred_result&);
-  FileStore_findPred_result() {
-  }
-
-  virtual ~FileStore_findPred_result() noexcept;
-  NodeID success;
-  SystemException systemException;
-
-  _FileStore_findPred_result__isset __isset;
-
-  void __set_success(const NodeID& val);
-
-  void __set_systemException(const SystemException& val);
-
-  bool operator == (const FileStore_findPred_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    if (!(systemException == rhs.systemException))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_findPred_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_findPred_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_findPred_presult__isset {
-  _FileStore_findPred_presult__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_findPred_presult__isset;
-
-class FileStore_findPred_presult {
- public:
-
-
-  virtual ~FileStore_findPred_presult() noexcept;
-  NodeID* success;
-  SystemException systemException;
-
-  _FileStore_findPred_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-
-class FileStore_getNodeSucc_args {
- public:
-
-  FileStore_getNodeSucc_args(const FileStore_getNodeSucc_args&);
-  FileStore_getNodeSucc_args& operator=(const FileStore_getNodeSucc_args&);
-  FileStore_getNodeSucc_args() {
-  }
-
-  virtual ~FileStore_getNodeSucc_args() noexcept;
-
-  bool operator == (const FileStore_getNodeSucc_args & /* rhs */) const
-  {
-    return true;
-  }
-  bool operator != (const FileStore_getNodeSucc_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_getNodeSucc_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class FileStore_getNodeSucc_pargs {
- public:
-
-
-  virtual ~FileStore_getNodeSucc_pargs() noexcept;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_getNodeSucc_result__isset {
-  _FileStore_getNodeSucc_result__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_getNodeSucc_result__isset;
-
-class FileStore_getNodeSucc_result {
- public:
-
-  FileStore_getNodeSucc_result(const FileStore_getNodeSucc_result&);
-  FileStore_getNodeSucc_result& operator=(const FileStore_getNodeSucc_result&);
-  FileStore_getNodeSucc_result() {
-  }
-
-  virtual ~FileStore_getNodeSucc_result() noexcept;
-  NodeID success;
-  SystemException systemException;
-
-  _FileStore_getNodeSucc_result__isset __isset;
-
-  void __set_success(const NodeID& val);
-
-  void __set_systemException(const SystemException& val);
-
-  bool operator == (const FileStore_getNodeSucc_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    if (!(systemException == rhs.systemException))
-      return false;
-    return true;
-  }
-  bool operator != (const FileStore_getNodeSucc_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const FileStore_getNodeSucc_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _FileStore_getNodeSucc_presult__isset {
-  _FileStore_getNodeSucc_presult__isset() : success(false), systemException(false) {}
-  bool success :1;
-  bool systemException :1;
-} _FileStore_getNodeSucc_presult__isset;
-
-class FileStore_getNodeSucc_presult {
- public:
-
-
-  virtual ~FileStore_getNodeSucc_presult() noexcept;
-  NodeID* success;
-  SystemException systemException;
-
-  _FileStore_getNodeSucc_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -731,21 +171,6 @@ class FileStoreClient : virtual public FileStoreIf {
   void writeFile(const RFile& rFile);
   void send_writeFile(const RFile& rFile);
   void recv_writeFile();
-  void readFile(RFile& _return, const std::string& filename);
-  void send_readFile(const std::string& filename);
-  void recv_readFile(RFile& _return);
-  void setFingertable(const std::vector<NodeID> & node_list);
-  void send_setFingertable(const std::vector<NodeID> & node_list);
-  void recv_setFingertable();
-  void findSucc(NodeID& _return, const std::string& key);
-  void send_findSucc(const std::string& key);
-  void recv_findSucc(NodeID& _return);
-  void findPred(NodeID& _return, const std::string& key);
-  void send_findPred(const std::string& key);
-  void recv_findPred(NodeID& _return);
-  void getNodeSucc(NodeID& _return);
-  void send_getNodeSucc();
-  void recv_getNodeSucc(NodeID& _return);
  protected:
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -762,20 +187,10 @@ class FileStoreProcessor : public ::apache::thrift::TDispatchProcessor {
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
   void process_writeFile(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_readFile(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_setFingertable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_findSucc(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_findPred(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_getNodeSucc(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   FileStoreProcessor(::std::shared_ptr<FileStoreIf> iface) :
     iface_(iface) {
     processMap_["writeFile"] = &FileStoreProcessor::process_writeFile;
-    processMap_["readFile"] = &FileStoreProcessor::process_readFile;
-    processMap_["setFingertable"] = &FileStoreProcessor::process_setFingertable;
-    processMap_["findSucc"] = &FileStoreProcessor::process_findSucc;
-    processMap_["findPred"] = &FileStoreProcessor::process_findPred;
-    processMap_["getNodeSucc"] = &FileStoreProcessor::process_getNodeSucc;
   }
 
   virtual ~FileStoreProcessor() {}
@@ -813,55 +228,6 @@ class FileStoreMultiface : virtual public FileStoreIf {
     ifaces_[i]->writeFile(rFile);
   }
 
-  void readFile(RFile& _return, const std::string& filename) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->readFile(_return, filename);
-    }
-    ifaces_[i]->readFile(_return, filename);
-    return;
-  }
-
-  void setFingertable(const std::vector<NodeID> & node_list) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->setFingertable(node_list);
-    }
-    ifaces_[i]->setFingertable(node_list);
-  }
-
-  void findSucc(NodeID& _return, const std::string& key) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->findSucc(_return, key);
-    }
-    ifaces_[i]->findSucc(_return, key);
-    return;
-  }
-
-  void findPred(NodeID& _return, const std::string& key) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->findPred(_return, key);
-    }
-    ifaces_[i]->findPred(_return, key);
-    return;
-  }
-
-  void getNodeSucc(NodeID& _return) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->getNodeSucc(_return);
-    }
-    ifaces_[i]->getNodeSucc(_return);
-    return;
-  }
-
 };
 
 // The 'concurrent' client is a thread safe client that correctly handles
@@ -897,21 +263,6 @@ class FileStoreConcurrentClient : virtual public FileStoreIf {
   void writeFile(const RFile& rFile);
   int32_t send_writeFile(const RFile& rFile);
   void recv_writeFile(const int32_t seqid);
-  void readFile(RFile& _return, const std::string& filename);
-  int32_t send_readFile(const std::string& filename);
-  void recv_readFile(RFile& _return, const int32_t seqid);
-  void setFingertable(const std::vector<NodeID> & node_list);
-  int32_t send_setFingertable(const std::vector<NodeID> & node_list);
-  void recv_setFingertable(const int32_t seqid);
-  void findSucc(NodeID& _return, const std::string& key);
-  int32_t send_findSucc(const std::string& key);
-  void recv_findSucc(NodeID& _return, const int32_t seqid);
-  void findPred(NodeID& _return, const std::string& key);
-  int32_t send_findPred(const std::string& key);
-  void recv_findPred(NodeID& _return, const int32_t seqid);
-  void getNodeSucc(NodeID& _return);
-  int32_t send_getNodeSucc();
-  void recv_getNodeSucc(NodeID& _return, const int32_t seqid);
  protected:
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;

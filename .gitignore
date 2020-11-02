@@ -1,2 +1,8 @@
 /.idea/cs457-557-fall2020-pa2-bdeore.iml
 /.idea
+/client
+/chord_types.o
+/chord_constants.o
+/FileStore.o
+/server
+/server.o

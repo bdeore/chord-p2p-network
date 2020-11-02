@@ -9,7 +9,7 @@ INC := -I$(THRIFT_DIR) -Isrc/ -I$(THRIFT_DIR)/thrift
 
 .PHONY: all clean
 
-all:server
+all:server	client
 
 %.o:gen-cpp/%.cpp
 	$(CXX)	-std=c++17	-lstdc++	-Wall	-DHAVE_INTTYPES_H	-DHAVE_NETINET_IN_H	$(INC)	-c	$<	-o	$@
@@ -17,8 +17,14 @@ all:server
 server:server.o	$(GEN_OBJ)
 	$(CXX)	$^	-o	$@	-std=c++17	-lstdc++	-L$(LIB_DIR)	-lthrift
 
+client:
+	g++	-std=c++17	-lstdc++	-Wall	-DHAVE_INTTYPES_H	-DHAVE_NETINET_IN_H	-I/home/cs557-inst/local/include -Isrc/ -I/home/cs557-inst/local/include/thrift	-c	gen-cpp/client.cpp	-o	client.o
+	g++	client.o	FileStore.o	chord_types.o	chord_constants.o	-o	client	-std=c++17	-lstdc++	-L/home/cs557-inst/local/lib/	-lthrift
+
 run:
 	source	~/.bashrc && ./server
+
+re:clean all run
 
 clean:
 	$(RM)	*.o	server

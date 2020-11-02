@@ -7,6 +7,7 @@
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
 #include <iostream>
+#include <fstream>
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -15,41 +16,77 @@ using namespace ::apache::thrift::server;
 
 class FileStoreHandler : virtual public FileStoreIf {
  public:
-  FileStoreHandler() {
-    // Your initialization goes here
-  }
 
-  void writeFile(const RFile &rFile) {
-    // Your implementation goes here
-    printf("writeFile\n");
-  }
+  FileStoreHandler() = default;
 
-  void readFile(RFile &_return, const std::string &filename) {
-    // Your implementation goes here
-    printf("readFile\n");
-  }
+  RFile file;
+  RFileMetadata metadata;
+  std::ofstream file_stream;
 
-  void setFingertable(const std::vector<NodeID> &node_list) {
-    // Your implementation goes here
-    printf("setFingertable\n");
-  }
+  void writeFile(const RFile &rFile) override {
 
-  void findSucc(NodeID &_return, const std::string &key) {
-    // Your implementation goes here
-    printf("findSucc\n");
-  }
+    if (file.meta.version == 0) {
+      metadata.version = rFile.meta.version;
+      std::cout << "this executed " << metadata.version << std::endl;
+    }
+    file.content = rFile.content;
+    this->metadata.filename = rFile.meta.filename;
+    this->metadata.version += 1;
 
-  void findPred(NodeID &_return, const std::string &key) {
-    // Your implementation goes here
-    printf("findPred\n");
-  }
+    this->file_stream.open(metadata.filename.c_str());
+    file_stream << file.content;
 
-  void getNodeSucc(NodeID &_return) {
-    // Your implementation goes here
-    printf("getNodeSucc\n");
+    this->file.meta.version = metadata.version;
+
+    std::cout << file.content << " " << metadata.filename << " " << file.meta.version << " " << metadata.version
+              << std::endl;
+    file_stream.close();
+    printf("writeFile succeeded\n");
   }
+//
+//  void readFile(RFile &_return, const std::string &filename) {
+//    // Your implementation goes here
+//    printf("readFile\n");
+//  }
+//
+//  void setFingertable(const std::vector<NodeID> &node_list) {
+//    // Your implementation goes here
+//    printf("setFingertable\n");
+//  }
+//
+//  void findSucc(NodeID &_return, const std::string &key) {
+//    // Your implementation goes here
+//    printf("findSucc\n");
+//  }
+//
+//  void findPred(NodeID &_return, const std::string &key) {
+//    // Your implementation goes here
+//    printf("findPred\n");
+//  }
+//
+//  void getNodeSucc(NodeID &_return) {
+//    // Your implementation goes here
+//    printf("getNodeSucc\n");
+//  }
 
 };
+
+//class FileStoreHandlerFactory : virtual public FileStoreIfFactory {
+// public:
+//  ~FileStoreHandlerFactory() override = default;
+//  FileStoreIf *getHandler(const ::apache::thrift::TConnectionInfo &connInfo) override {
+//    std::shared_ptr<TSocket> sock = std::dynamic_pointer_cast<TSocket>(connInfo.transport);
+//    std::cout << "Incoming connection\n";
+//    std::cout << "\tSocketInfo: " << sock->getSocketInfo() << "\n";
+//    std::cout << "\tPeerHost: " << sock->getPeerHost() << "\n";
+//    std::cout << "\tPeerAddress: " << sock->getPeerAddress() << "\n";
+//    std::cout << "\tPeerPort: " << sock->getPeerPort() << "\n";
+//    return new FileStoreHandler;
+//  }
+//  void releaseHandler(::shared::SharedServiceIf *handler) override {
+//    delete handler;
+//  }
+//};
 
 int main(int argc, char **argv) {
   int port = 9090;

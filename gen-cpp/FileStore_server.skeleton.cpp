@@ -23,31 +23,6 @@ class FileStoreHandler : virtual public FileStoreIf {
     printf("writeFile\n");
   }
 
-  void readFile(RFile& _return, const std::string& filename) {
-    // Your implementation goes here
-    printf("readFile\n");
-  }
-
-  void setFingertable(const std::vector<NodeID> & node_list) {
-    // Your implementation goes here
-    printf("setFingertable\n");
-  }
-
-  void findSucc(NodeID& _return, const std::string& key) {
-    // Your implementation goes here
-    printf("findSucc\n");
-  }
-
-  void findPred(NodeID& _return, const std::string& key) {
-    // Your implementation goes here
-    printf("findPred\n");
-  }
-
-  void getNodeSucc(NodeID& _return) {
-    // Your implementation goes here
-    printf("getNodeSucc\n");
-  }
-
 };
 
 int main(int argc, char **argv) {
