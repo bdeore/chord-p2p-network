@@ -30,8 +30,8 @@ service FileStore {
 //  NodeID findSucc(1: string key)
 //    throws (1: SystemException systemException),
 
-//  NodeID findPred(1: string key)
-//    throws (1: SystemException systemException),
+  NodeID findPred(1: string key)
+    throws (1: SystemException systemException),
 
   NodeID getNodeSucc()
     throws (1: SystemException systemException),

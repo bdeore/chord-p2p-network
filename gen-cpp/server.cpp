@@ -3,6 +3,7 @@
 #include <thrift/server/TSimpleServer.h>
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TSocket.h>
 
 #include <openssl/sha.h>
 #include <iostream>
@@ -10,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <memory>
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -21,16 +23,22 @@ class FileStoreHandler : virtual public FileStoreIf {
   RFile file;
   RFileMetadata metadata;
   std::vector<NodeID> finger_table;
-  NodeID node_id;
-  int port;
+  NodeID node_id, pred_node_id, temp;
 
-  FileStoreHandler() {
-    std::string ip = "128.226.114.201";
-
+  FileStoreHandler(int port) {
+    std::ifstream input_stream;
+    input_stream.open("nodes.txt");
+    std::string ip;
+    std::getline(input_stream, ip);
+    ip = ip.substr(0, 15);
     std::string key = ip + ":" + std::to_string(port);
-    this->node_id.__set_id(calculateSHA(key));
+
+    std::string id = calculateSHA(key);
+    this->node_id.__set_id(id);
     this->node_id.__set_ip(ip);
     this->node_id.__set_port(port);
+    std::cout << "\nNodeID :" << " IP: " << node_id.ip << "  Port: " << node_id.port << "\nHash: " << node_id.id
+              << std::endl;
   }
 
   void writeFile(const RFile &rFile) override {
@@ -79,33 +87,67 @@ class FileStoreHandler : virtual public FileStoreIf {
     this->finger_table = node_list;
     std::cout << this->finger_table.size() << std::endl;
     printf("setFingertable succeeded\n");
-//    for (const auto &node: finger_table) {
-//      std::cout << node << std::endl;
-//    }
   }
 
 //  void findSucc(NodeID &_return, const std::string &key) {
 //    // Your implementation goes here
 //    printf("findSucc\n");
 //  }
-//
-//  void findPred(NodeID &_return, const std::string &key) {
-//    // Your implementation goes here
-//    printf("findPred\n");
-//  }
+
+  void findPred(NodeID &_return, const std::string &key) override {
+    if (finger_table.size() == 0) {
+      std::string message = "Exception: Finger Table for the node [ " + node_id.id.substr(0, 8) + " ] is empty";
+      SystemException exception;
+      exception.__set_message(message);
+      throw exception;
+    } else {
+      temp = finger_table.at(0);
+
+      while (temp.id != node_id.id) {
+        auto trans_ep = std::make_shared<TSocket>(temp.ip, temp.port);
+        auto trans_buf = std::make_shared<TBufferedTransport>(trans_ep);
+        auto proto = std::make_shared<TBinaryProtocol>(trans_buf);
+        FileStoreClient temp_client(proto);
+
+        trans_ep->open();
+        pred_node_id.__set_ip(temp.ip);
+        pred_node_id.__set_id(temp.id);
+        pred_node_id.__set_port(temp.port);
+
+        temp_client.getNodeSucc(temp);
+        trans_ep->close();
+      }
+
+      std::cout << "Predecessor of Node: " << node_id.id.substr(0, 6) << " is Node : " << pred_node_id.id.substr(0, 6)
+                << std::endl;
+
+      _return.__set_id(pred_node_id.id);
+      _return.__set_ip(pred_node_id.ip);
+      _return.__set_port(pred_node_id.port);
+
+    }
+
+    printf("findPred succeeded\n");
+  }
 
   void getNodeSucc(NodeID &_return) override {
 
     if (finger_table.size() != 0) {
-      _return = this->finger_table.at(0);
 
+      _return.__set_ip(this->finger_table.at(0).ip);
+      _return.__set_id(this->finger_table.at(0).id);
+      _return.__set_port(this->finger_table.at(0).port);
+
+      std::cout << "Successor of Node : " << node_id.id.substr(0, 6) << " is Node: " << _return.id.substr(0, 6)
+                << " IP: " << _return.ip << "  Port: " << _return.port << std::endl;
+
+      printf("getNodeSucc succeeded\n ");
     } else {
       SystemException exception;
       exception.__set_message("Exception: Finger Table for the node is empty");
       throw exception;
     }
 
-    printf("getNodeSucc succeeded\n");
   }
 
   std::string calculateSHA(std::string key) {
@@ -126,17 +168,23 @@ class FileStoreHandler : virtual public FileStoreIf {
 };
 
 int main(int argc, char *argv[]) {
-  int port = std::stoi(argv[1]);
-  ::std::shared_ptr<FileStoreHandler> handler(new FileStoreHandler());
-  ::std::shared_ptr<TProcessor> processor(new FileStoreProcessor(handler));
-  ::std::shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
-  ::std::shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
-  ::std::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
-  handler->port = port;
+  if (argc > 1) {
+    int port_in = std::stoi(argv[1]);
+    std::shared_ptr<FileStoreHandler> handler(new FileStoreHandler(port_in));
+    std::shared_ptr<TProcessor> processor(new FileStoreProcessor(handler));
+    std::shared_ptr<TServerTransport> serverTransport(new TServerSocket(port_in));
+    std::shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
+    std::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
 
-  TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
-  std::cout << "server is running on port: [ " << handler->port << " ]" << std::endl;
-  server.serve();
+    TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
+    std::cout << "\nserver is running on port: [ " << port_in << " ]" << std::endl;
+    server.serve();
+  } else {
+    SystemException exception;
+    std::cerr << "\nInvalid Arguments: [ Usage ] : ./server 9090 [port]\n" << std::endl;
+    exception.__set_message("[ Usage ] : ./server 9090 [port]");
+    throw exception;
+  }
   return 0;
 }
 

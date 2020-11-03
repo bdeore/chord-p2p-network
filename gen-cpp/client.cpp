@@ -36,8 +36,14 @@ int main(int argc, char *argv[]) {
   newFile.__set_meta(newMetadata);
 
   client.readFile(newFile, "sample.txt");
-
   std::cout << newFile.content << " " << newFile.meta.filename << " " << newFile.meta.version << " " << std::endl;
+
+  NodeID node_id;
+
+  client.findPred(node_id, std::string("9d585cbca8cfad4ffc7ae82baf74800efe4d8fec5831ac0fbb1d03e0ddc535d7"));
+//
+//  std::cout << "\nNodeID :" << " IP: " << node_id.ip << "  Port: " << node_id.port << "\nHash: " << node_id.id
+//            << std::endl;
 
   trans_ep->close();
 }
