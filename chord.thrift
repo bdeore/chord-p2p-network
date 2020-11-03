@@ -26,9 +26,9 @@ service FileStore {
     throws (1: SystemException systemException),
 
   void setFingertable(1: list<NodeID> node_list),
-//
-//  NodeID findSucc(1: string key)
-//    throws (1: SystemException systemException),
+
+  NodeID findSucc(1: string key)
+    throws (1: SystemException systemException),
 
   NodeID findPred(1: string key)
     throws (1: SystemException systemException),

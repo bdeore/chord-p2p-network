@@ -25,6 +25,7 @@ class FileStoreIf {
   virtual void writeFile(const RFile& rFile) = 0;
   virtual void readFile(RFile& _return, const std::string& filename) = 0;
   virtual void setFingertable(const std::vector<NodeID> & node_list) = 0;
+  virtual void findSucc(NodeID& _return, const std::string& key) = 0;
   virtual void findPred(NodeID& _return, const std::string& key) = 0;
   virtual void getNodeSucc(NodeID& _return) = 0;
 };
@@ -63,6 +64,9 @@ class FileStoreNull : virtual public FileStoreIf {
     return;
   }
   void setFingertable(const std::vector<NodeID> & /* node_list */) {
+    return;
+  }
+  void findSucc(NodeID& /* _return */, const std::string& /* key */) {
     return;
   }
   void findPred(NodeID& /* _return */, const std::string& /* key */) {
@@ -375,6 +379,118 @@ class FileStore_setFingertable_presult {
 
 };
 
+typedef struct _FileStore_findSucc_args__isset {
+  _FileStore_findSucc_args__isset() : key(false) {}
+  bool key :1;
+} _FileStore_findSucc_args__isset;
+
+class FileStore_findSucc_args {
+ public:
+
+  FileStore_findSucc_args(const FileStore_findSucc_args&);
+  FileStore_findSucc_args& operator=(const FileStore_findSucc_args&);
+  FileStore_findSucc_args() : key() {
+  }
+
+  virtual ~FileStore_findSucc_args() noexcept;
+  std::string key;
+
+  _FileStore_findSucc_args__isset __isset;
+
+  void __set_key(const std::string& val);
+
+  bool operator == (const FileStore_findSucc_args & rhs) const
+  {
+    if (!(key == rhs.key))
+      return false;
+    return true;
+  }
+  bool operator != (const FileStore_findSucc_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const FileStore_findSucc_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class FileStore_findSucc_pargs {
+ public:
+
+
+  virtual ~FileStore_findSucc_pargs() noexcept;
+  const std::string* key;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _FileStore_findSucc_result__isset {
+  _FileStore_findSucc_result__isset() : success(false), systemException(false) {}
+  bool success :1;
+  bool systemException :1;
+} _FileStore_findSucc_result__isset;
+
+class FileStore_findSucc_result {
+ public:
+
+  FileStore_findSucc_result(const FileStore_findSucc_result&);
+  FileStore_findSucc_result& operator=(const FileStore_findSucc_result&);
+  FileStore_findSucc_result() {
+  }
+
+  virtual ~FileStore_findSucc_result() noexcept;
+  NodeID success;
+  SystemException systemException;
+
+  _FileStore_findSucc_result__isset __isset;
+
+  void __set_success(const NodeID& val);
+
+  void __set_systemException(const SystemException& val);
+
+  bool operator == (const FileStore_findSucc_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(systemException == rhs.systemException))
+      return false;
+    return true;
+  }
+  bool operator != (const FileStore_findSucc_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const FileStore_findSucc_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _FileStore_findSucc_presult__isset {
+  _FileStore_findSucc_presult__isset() : success(false), systemException(false) {}
+  bool success :1;
+  bool systemException :1;
+} _FileStore_findSucc_presult__isset;
+
+class FileStore_findSucc_presult {
+ public:
+
+
+  virtual ~FileStore_findSucc_presult() noexcept;
+  NodeID* success;
+  SystemException systemException;
+
+  _FileStore_findSucc_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 typedef struct _FileStore_findPred_args__isset {
   _FileStore_findPred_args__isset() : key(false) {}
   bool key :1;
@@ -621,6 +737,9 @@ class FileStoreClient : virtual public FileStoreIf {
   void setFingertable(const std::vector<NodeID> & node_list);
   void send_setFingertable(const std::vector<NodeID> & node_list);
   void recv_setFingertable();
+  void findSucc(NodeID& _return, const std::string& key);
+  void send_findSucc(const std::string& key);
+  void recv_findSucc(NodeID& _return);
   void findPred(NodeID& _return, const std::string& key);
   void send_findPred(const std::string& key);
   void recv_findPred(NodeID& _return);
@@ -645,6 +764,7 @@ class FileStoreProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_writeFile(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_readFile(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_setFingertable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_findSucc(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_findPred(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getNodeSucc(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
@@ -653,6 +773,7 @@ class FileStoreProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["writeFile"] = &FileStoreProcessor::process_writeFile;
     processMap_["readFile"] = &FileStoreProcessor::process_readFile;
     processMap_["setFingertable"] = &FileStoreProcessor::process_setFingertable;
+    processMap_["findSucc"] = &FileStoreProcessor::process_findSucc;
     processMap_["findPred"] = &FileStoreProcessor::process_findPred;
     processMap_["getNodeSucc"] = &FileStoreProcessor::process_getNodeSucc;
   }
@@ -709,6 +830,16 @@ class FileStoreMultiface : virtual public FileStoreIf {
       ifaces_[i]->setFingertable(node_list);
     }
     ifaces_[i]->setFingertable(node_list);
+  }
+
+  void findSucc(NodeID& _return, const std::string& key) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->findSucc(_return, key);
+    }
+    ifaces_[i]->findSucc(_return, key);
+    return;
   }
 
   void findPred(NodeID& _return, const std::string& key) {
@@ -772,6 +903,9 @@ class FileStoreConcurrentClient : virtual public FileStoreIf {
   void setFingertable(const std::vector<NodeID> & node_list);
   int32_t send_setFingertable(const std::vector<NodeID> & node_list);
   void recv_setFingertable(const int32_t seqid);
+  void findSucc(NodeID& _return, const std::string& key);
+  int32_t send_findSucc(const std::string& key);
+  void recv_findSucc(NodeID& _return, const int32_t seqid);
   void findPred(NodeID& _return, const std::string& key);
   int32_t send_findPred(const std::string& key);
   void recv_findPred(NodeID& _return, const int32_t seqid);

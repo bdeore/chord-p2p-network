@@ -40,10 +40,14 @@ int main(int argc, char *argv[]) {
 
   NodeID node_id;
 
-  client.findPred(node_id, std::string("9d585cbca8cfad4ffc7ae82baf74800efe4d8fec5831ac0fbb1d03e0ddc535d7"));
-//
-//  std::cout << "\nNodeID :" << " IP: " << node_id.ip << "  Port: " << node_id.port << "\nHash: " << node_id.id
-//            << std::endl;
+  client.findPred(node_id, std::string("0a585cbca8cfad4ffc7ae82baf74800efe4d8fec5831ac0fbb1d03e0ddc535d7"));
+  std::cout << "\nPredecessor NodeID for Key [0a585c]: " << " IP: " << node_id.ip << "  Port: " << node_id.port
+            << "\nHash: " << node_id.id << std::endl;
+
+  client.findSucc(node_id, std::string("9d585cbca8cfad4ffc7ae82baf74800efe4d8fec5831ac0fbb1d03e0ddc535d7"));
+
+  std::cout << "\nSuccessor NodeID for Key [9d585cb]: " << " IP: " << node_id.ip << "  Port: " << node_id.port
+            << "\nHash: " << node_id.id << std::endl;
 
   trans_ep->close();
 }

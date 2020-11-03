@@ -33,6 +33,11 @@ class FileStoreHandler : virtual public FileStoreIf {
     printf("setFingertable\n");
   }
 
+  void findSucc(NodeID& _return, const std::string& key) {
+    // Your implementation goes here
+    printf("findSucc\n");
+  }
+
   void findPred(NodeID& _return, const std::string& key) {
     // Your implementation goes here
     printf("findPred\n");

@@ -13,10 +13,10 @@
 #include <string>
 #include <memory>
 
-using namespace ::apache::thrift;
-using namespace ::apache::thrift::protocol;
-using namespace ::apache::thrift::transport;
-using namespace ::apache::thrift::server;
+using namespace apache::thrift;
+using namespace apache::thrift::protocol;
+using namespace apache::thrift::transport;
+using namespace apache::thrift::server;
 
 class FileStoreHandler : virtual public FileStoreIf {
  public:
@@ -37,6 +37,7 @@ class FileStoreHandler : virtual public FileStoreIf {
     this->node_id.__set_id(id);
     this->node_id.__set_ip(ip);
     this->node_id.__set_port(port);
+    input_stream.close();
     std::cout << "\nNodeID :" << " IP: " << node_id.ip << "  Port: " << node_id.port << "\nHash: " << node_id.id
               << std::endl;
   }
@@ -79,20 +80,18 @@ class FileStoreHandler : virtual public FileStoreIf {
       exception.__set_message("Exception: File doesn't exist on the server");
       throw exception;
     }
-
-    printf("readFile succeeded\n");
   }
 
   void setFingertable(const std::vector<NodeID> &node_list) override {
     this->finger_table = node_list;
     std::cout << this->finger_table.size() << std::endl;
-    printf("setFingertable succeeded\n");
   }
 
-//  void findSucc(NodeID &_return, const std::string &key) {
-//    // Your implementation goes here
-//    printf("findSucc\n");
-//  }
+  void findSucc(NodeID &_return, const std::string &key) override {
+
+    findPred(pred_node_id, key);
+    forward_request(_return, pred_node_id);
+  }
 
   void findPred(NodeID &_return, const std::string &key) override {
     if (finger_table.size() == 0) {
@@ -103,51 +102,54 @@ class FileStoreHandler : virtual public FileStoreIf {
     } else {
       temp = finger_table.at(0);
 
-      while (temp.id != node_id.id) {
-        auto trans_ep = std::make_shared<TSocket>(temp.ip, temp.port);
-        auto trans_buf = std::make_shared<TBufferedTransport>(trans_ep);
-        auto proto = std::make_shared<TBinaryProtocol>(trans_buf);
-        FileStoreClient temp_client(proto);
-
-        trans_ep->open();
-        pred_node_id.__set_ip(temp.ip);
-        pred_node_id.__set_id(temp.id);
-        pred_node_id.__set_port(temp.port);
-
-        temp_client.getNodeSucc(temp);
-        trans_ep->close();
+      if (key > node_id.id && key <= finger_table.at(0).id) {
+        pred_node_id.__set_ip(node_id.ip);
+        pred_node_id.__set_id(node_id.id);
+        pred_node_id.__set_port(node_id.port);
+      } else {
+        while (key > temp.id || key < pred_node_id.id) {
+          pred_node_id.__set_ip(temp.ip);
+          pred_node_id.__set_id(temp.id);
+          pred_node_id.__set_port(temp.port);
+          forward_request(temp, temp);
+        }
       }
-
-      std::cout << "Predecessor of Node: " << node_id.id.substr(0, 6) << " is Node : " << pred_node_id.id.substr(0, 6)
-                << std::endl;
 
       _return.__set_id(pred_node_id.id);
       _return.__set_ip(pred_node_id.ip);
       _return.__set_port(pred_node_id.port);
-
     }
-
-    printf("findPred succeeded\n");
+//      std::cout << "Predecessor of Node: " << key.substr(0, 6) << " is Node : " << pred_node_id.id.substr(0, 6)
+//                << std::endl;
+//    printf("findPred succeeded\n");
   }
 
   void getNodeSucc(NodeID &_return) override {
 
     if (finger_table.size() != 0) {
-
       _return.__set_ip(this->finger_table.at(0).ip);
       _return.__set_id(this->finger_table.at(0).id);
       _return.__set_port(this->finger_table.at(0).port);
 
-      std::cout << "Successor of Node : " << node_id.id.substr(0, 6) << " is Node: " << _return.id.substr(0, 6)
-                << " IP: " << _return.ip << "  Port: " << _return.port << std::endl;
-
-      printf("getNodeSucc succeeded\n ");
     } else {
       SystemException exception;
       exception.__set_message("Exception: Finger Table for the node is empty");
       throw exception;
     }
+//
+//      std::cout << "Successor of Node : " << node_id.id.substr(0, 6) << " is Node: " << _return.id.substr(0, 6)
+//                << " IP: " << _return.ip << "  Port: " << _return.port << std::endl;
+  }
 
+  void forward_request(NodeID &_return, NodeID node) {
+    auto trans_ep = std::make_shared<TSocket>(node.ip, node.port);
+    auto trans_buf = std::make_shared<TBufferedTransport>(trans_ep);
+    auto proto = std::make_shared<TBinaryProtocol>(trans_buf);
+    FileStoreClient temp_client(proto);
+
+    trans_ep->open();
+    temp_client.getNodeSucc(_return);
+    trans_ep->close();
   }
 
   std::string calculateSHA(std::string key) {
@@ -164,7 +166,6 @@ class FileStoreHandler : virtual public FileStoreIf {
     }
     return sha_str.str();
   }
-
 };
 
 int main(int argc, char *argv[]) {
