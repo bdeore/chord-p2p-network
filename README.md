@@ -16,7 +16,7 @@ make start
 
 starts single server on port 9090
 
-to run more servers nodes use: ./server [port]
+to run more servers nodes use: source ~/.bashrc && ./server [port]
 
 
 ### to restart server ( to rebuild ):
