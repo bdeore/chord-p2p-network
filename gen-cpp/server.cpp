@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <string>
 #include <memory>
+#include <map>
+#include <utility>
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -20,10 +22,9 @@ using namespace apache::thrift::server;
 
 class FileStoreHandler : virtual public FileStoreIf {
  public:
-  RFile file;
-  RFileMetadata metadata;
   std::vector<NodeID> finger_table;
-  NodeID node_id, pred_node_id, temp;
+  NodeID node_id, pred_node_id;
+  std::map<std::string, RFile> available_files;
 
   FileStoreHandler(int port) {
     std::ifstream input_stream;
@@ -38,42 +39,80 @@ class FileStoreHandler : virtual public FileStoreIf {
     this->node_id.__set_ip(ip);
     this->node_id.__set_port(port);
     input_stream.close();
-    std::cout << "\nNodeID :" << " IP: " << node_id.ip << "  Port: " << node_id.port << "\nHash: " << node_id.id
-              << std::endl;
+
+    std::cout << "     IP: " << node_id.ip << "  |  NodeID: " << node_id.id.substr(0, 8)
+              << "\n ------------------------------------------------\n" << std::endl;
   }
 
   void writeFile(const RFile &rFile) override {
-    std::ifstream exists(rFile.meta.filename.c_str());
-    std::ofstream file_stream;
-
-    if (!exists.good()) {
-      metadata.version = rFile.meta.version;
-      this->metadata.version--;
-      std::cout << "this executed " << metadata.version << std::endl;
+    if (finger_table.size() == 0) {
+      std::string message = "Exception: Finger Table for the node [ " + node_id.id.substr(0, 8) + " ] is empty";
+      SystemException exception;
+      exception.__set_message(message);
+      throw exception;
     }
 
-    file.content = rFile.content;
-    this->metadata.filename = rFile.meta.filename;
-    this->metadata.version += 1;
-    this->file.meta.version = metadata.version;
-    file_stream.open(metadata.filename.c_str());
-    file_stream << file.content;
+    RFileMetadata metadata;
+    std::string file_sha = calculateSHA(rFile.meta.filename);
+    NodeID owner;
 
-    file_stream.close();
-    std::cout << file.content << " " << metadata.filename << " " << file.meta.version << " " << metadata.version
-              << std::endl;
-    printf("writeFile succeeded\n");
+    findPred(owner, file_sha);
+    forward_request(owner, owner);
+
+    if (node_id.id == owner.id) {
+      std::ifstream exists(rFile.meta.filename.c_str());
+      std::ofstream file_stream;
+
+      if (!exists.good()) {
+        RFile file;
+        metadata.version = 0;
+        file.content = rFile.content;
+        metadata.__set_filename(rFile.meta.filename);
+        metadata.__set_version(metadata.version);
+        file.__set_content(rFile.content);
+        file.__set_meta(metadata);
+        available_files.insert(std::make_pair(std::string(rFile.meta.filename), file));
+
+        file_stream.open(rFile.meta.filename);
+        file_stream << file.content;
+        file_stream.close();
+
+      } else {
+        std::map<std::string, RFile>::iterator it = available_files.find(rFile.meta.filename);
+        it->second.meta.version += 1;
+        it->second.content = rFile.content;
+
+        file_stream.open(rFile.meta.filename);
+        file_stream << it->second.content;
+        file_stream.close();
+      }
+
+    } else {
+      SystemException exception;
+      exception.__set_message("Exception: Server is not the file's successor");
+      throw exception;
+    }
+//    std::cout << file.content << " " << metadata.filename << " " << file.meta.version << " " << metadata.version
+//              << std::endl;
+//    printf("writeFile succeeded\n");
   }
 
   void readFile(RFile &_return, const std::string &filename) override {
-    std::ifstream exists(filename.c_str());
+    if (finger_table.size() == 0) {
+      std::string message = "Exception: Finger Table for the node [ " + node_id.id.substr(0, 8) + " ] is empty";
+      SystemException exception;
+      exception.__set_message(message);
+      throw exception;
+    }
 
+    std::ifstream exists(filename.c_str());
     if (exists.good()) {
-      RFileMetadata meta;
-      meta.__set_filename(this->metadata.filename);
-      meta.__set_version(this->metadata.version);
-      _return.__set_meta(meta);
-      _return.__set_content(this->file.content);
+      std::map<std::string, RFile>::iterator it = available_files.find(filename);
+
+      RFile file = it->second;
+
+      _return.__set_meta(it->second.meta);
+      _return.__set_content(file.content);
 
     } else {
       SystemException exception;
@@ -84,11 +123,9 @@ class FileStoreHandler : virtual public FileStoreIf {
 
   void setFingertable(const std::vector<NodeID> &node_list) override {
     this->finger_table = node_list;
-    std::cout << this->finger_table.size() << std::endl;
   }
 
   void findSucc(NodeID &_return, const std::string &key) override {
-
     findPred(pred_node_id, key);
     forward_request(_return, pred_node_id);
   }
@@ -100,14 +137,14 @@ class FileStoreHandler : virtual public FileStoreIf {
       exception.__set_message(message);
       throw exception;
     } else {
+      NodeID temp;
       temp = finger_table.at(0);
-
       if (key > node_id.id && key <= finger_table.at(0).id) {
-        pred_node_id.__set_ip(node_id.ip);
-        pred_node_id.__set_id(node_id.id);
-        pred_node_id.__set_port(node_id.port);
+        pred_node_id.__set_ip(temp.ip);
+        pred_node_id.__set_id(temp.id);
+        pred_node_id.__set_port(temp.port);
       } else {
-        while (key > temp.id || key < pred_node_id.id) {
+        while (key > temp.id || key <= pred_node_id.id) {
           pred_node_id.__set_ip(temp.ip);
           pred_node_id.__set_id(temp.id);
           pred_node_id.__set_port(temp.port);
@@ -136,7 +173,6 @@ class FileStoreHandler : virtual public FileStoreIf {
       exception.__set_message("Exception: Finger Table for the node is empty");
       throw exception;
     }
-//
 //      std::cout << "Successor of Node : " << node_id.id.substr(0, 6) << " is Node: " << _return.id.substr(0, 6)
 //                << " IP: " << _return.ip << "  Port: " << _return.port << std::endl;
   }
@@ -171,6 +207,11 @@ class FileStoreHandler : virtual public FileStoreIf {
 int main(int argc, char *argv[]) {
   if (argc > 1) {
     int port_in = std::stoi(argv[1]);
+
+    std::cout << "\n ------------------------------------------------\n"
+              << "       server is running on port: [ " << port_in << " ]\n"
+              << " ------------------------------------------------\n";
+
     std::shared_ptr<FileStoreHandler> handler(new FileStoreHandler(port_in));
     std::shared_ptr<TProcessor> processor(new FileStoreProcessor(handler));
     std::shared_ptr<TServerTransport> serverTransport(new TServerSocket(port_in));
@@ -178,7 +219,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
 
     TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
-    std::cout << "\nserver is running on port: [ " << port_in << " ]" << std::endl;
+
     server.serve();
   } else {
     SystemException exception;
