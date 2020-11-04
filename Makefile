@@ -9,7 +9,7 @@ INC := -I$(THRIFT_DIR) -Isrc/ -I$(THRIFT_DIR)/thrift
 
 .PHONY: all clean
 
-all:server	client
+all:server
 
 %.o:gen-cpp/%.cpp
 	$(CXX)	-g	-std=c++17	-lstdc++	-Wall	-DHAVE_INTTYPES_H	-DHAVE_NETINET_IN_H	$(INC)	-c	$<	-o	$@
@@ -23,6 +23,8 @@ client:
 
 run:
 	source	~/.bashrc && ./server 9090
+
+start: all run
 
 restart:clean all run
 
