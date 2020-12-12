@@ -1,10 +1,12 @@
 ## Chord Distributed Hash Table
 
-This project is an implementation of peer-to-peer file sharing network using chord dht. Apache Thrift is used to perform
-RPC calls. nodes.txt file lists the peers which are part of the chord p2p network. keyspace for each node is calculated
-by taking SHA256 of `[ip]:[port]`. following methods are supported:
+This project is an implementation of peer-to-peer file sharing network using chord dht. nodes.txt file lists the peers
+which are part of the chord p2p network. keyspace for each node is calculated by taking SHA256 of `[ip]:[port]`.
+following methods are supported:
 
-writeFile readFile setFingertable findSucc findPred getNodeSucc
+writeFile, readFile, setFingertable, findSucc, findPred, getNodeSucc.
+
+Apache Thrift is used to perform RPC calls.
 
 read more about chord dht: https://medium.com/techlog/chord-building-a-dht-distributed-hash-table-in-golang-67c3ce17417b
 
