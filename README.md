@@ -1,14 +1,14 @@
-# CS557 -- Assignment 2
+## Chord Distributed Hash Table
 
-### Note for TA
+This project is an implementation of peer-to-peer file sharing network using chord dht. Apache Thrift is used to perform
+RPC calls. nodes.txt file lists the peers which are part of the chord p2p network. keyspace for each node is calculated
+by taking SHA256 of `[ip]:[port]`. following methods are supported:
 
-Professor gave me one day extension on top of the late days. please grade the latest submission on blackboard.
+writeFile readFile setFingertable findSucc findPred getNodeSucc
 
-programming language: c++
+read more about chord dht: https://medium.com/techlog/chord-building-a-dht-distributed-hash-table-in-golang-67c3ce17417b
 
-completion status: complete
-
-### to run the server: 
+### run the server:
 
 ``
 make start
@@ -18,8 +18,17 @@ starts single server on port 9090
 
 to run more servers nodes use: source ~/.bashrc && ./server [port]
 
+upon starting the server nodes mentioned in nodes.txt, run the init script with: init nodes.txt
 
-### to restart server ( to rebuild ):
+make sure apache thrift is added to your path.
+
+### make client for testing
+
+``
+make client
+``
+
+### restart server ( to rebuild ):
 
 ``
 make restart
@@ -30,8 +39,6 @@ make restart
 ``
 [ip]:[port]
 ``
-
-IP is the one given in nodes.txt file & port is supplied as argument
 
 port will be printed out when the server start.
 
